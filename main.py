@@ -78,21 +78,53 @@ class LinkedList:
         else:
             raise IndexError(f'Index {key} out of range for list of length {self.len}')
 
+    def __delitem__(self, key):
+        # Removes item from list
+        if key in range(-self.len, self.len):
+            curr = self.head
+            prev = None
+            key = key % self.len
+            for _ in range(key):
+                prev = curr
+                curr = curr.next
+            prev.next = curr.next
+            if prev is not None:
+                prev.next = curr.next
+                curr.next = None
+            else:
+                self.head = self.head.next
+                self.curr = self.head
+                curr.next = None
+            self.len -= 1
+        else:
+            raise IndexError(f'Index {key} out of range for list of length {self.len}')
+
+
+    def insert(self, key, item):
+        # Inserts item into list
+        if key in range(-self.len, self.len):
+            curr = self.head
+            key = key % self.len
+            for _ in range(key):
+                curr = curr.next
+            curr.value = item
+        else:
+            raise IndexError(f'Index {key} out of range for list of length {self.len}')
+
 
 def main():
     mylist1 = LinkedList([1, 2, 3])
     mylist2 = LinkedList([4, 5, 6])
     mylist = LinkedList(mylist1)
     mylist.concat(mylist2)
-    print(mylist)
-    print(len(mylist))
     
-    # Test __getitem__
-    print(mylist[0])
-    
-    # Test __setitem__
-    mylist[3] = 'hello'
+    # Test delitem
+    del mylist[0]
+
+    # Test insert
+    mylist.insert(1, 'hello')
     print(mylist)
+
 
 if __name__ == '__main__':
     main()
