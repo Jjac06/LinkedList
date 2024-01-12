@@ -1,3 +1,8 @@
+import random
+from random import shuffle
+from time import perf_counter
+import csv
+
 class Node:
     def __init__(self, val=None):
         if val is not None:
@@ -56,74 +61,147 @@ class LinkedList:
     def __len__(self):
         return self.len
 
-    # Find item with index number item
     def __getitem__(self, item):
-        if item in range(-self.len, self.len):
+        if isinstance(item, slice):
+            start, stop, step = item.indices(self.len)
+            indices = range(start, stop, step)
+            return [self[i] for i in indices]
+        elif item in range(-self.len, self.len):
             curr = self.head
-            item = item % self.len
+            item %= self.len
             for _ in range(item):
                 curr = curr.next
             return curr.value
         else:
-            raise IndexError(f'Index {item} out of range for list of length {self.len}')
-        
-    
+            raise IndexError(f'Index {item} is out of range for list of length {self.len}.')
+
+
     def __setitem__(self, key, value):
         if key in range(-self.len, self.len):
             curr = self.head
-            key = key % self.len
+            key %= self.len
             for _ in range(key):
                 curr = curr.next
             curr.value = value
         else:
-            raise IndexError(f'Index {key} out of range for list of length {self.len}')
+            raise IndexError(f'Index {key} is out of range for list of length {self.len}.')
 
     def __delitem__(self, key):
-        # Removes item from list
         if key in range(-self.len, self.len):
-            curr = self.head
-            prev = None
-            key = key % self.len
+            curr = self.head  # Initialize current node to head
+            prev = None  # Initialize previous node as None (no node before head)
+            key %= self.len  # Handle negative exponents
             for _ in range(key):
-                prev = curr
+                prev = curr  # Advance through the list, updating prev and curr
                 curr = curr.next
-            prev.next = curr.next
             if prev is not None:
-                prev.next = curr.next
+                prev.next = curr.next  # Remove curr from the chain
                 curr.next = None
             else:
-                self.head = self.head.next
-                self.curr = self.head
+                self.head = self.head.next  # Handle the case where we are removing the first node in the list
+                self.curr = self.head  # Make sure we don't break the iterator we set up earlier
                 curr.next = None
-            self.len -= 1
+            self.len -= 1  # Decrement len since we removed a node from the chain.
         else:
-            raise IndexError(f'Index {key} out of range for list of length {self.len}')
-
+            raise IndexError(f'Index {key} is out of range for list of length {self.len}.')
 
     def insert(self, key, item):
-        # Inserts item into list
         if key in range(-self.len, self.len):
-            curr = self.head
-            key = key % self.len
+            curr = self.head  # Initialize current node to head
+            prev = None  # Initialize previous node as None (no node before head)
+            key %= self.len  # Handle negative exponents
+            newnode = Node(item)  # Create a new node to store the new item.
             for _ in range(key):
+                prev = curr  # Advance through the list, updating prev and curr
                 curr = curr.next
-            curr.value = item
+            if prev is not None:
+                prev.next = newnode  # Insert a new node into the chain
+                newnode.next = curr
+            else:
+                self.head = newnode  # Handle the case where we are replacing the first node in the list
+                self.curr = self.head   # Make sure we don't break the iterator we set up earlier
+                newnode.next = curr
+            self.len += 1  # Increment len since we added a node to the chain.
+        elif key == self.len:
+            self.append(item)  # If we are adding a node at the end, simply use append.
         else:
-            raise IndexError(f'Index {key} out of range for list of length {self.len}')
+            raise IndexError(f'Index {key} is out of range for list of length {self.len}.')
 
+
+    # Takes two indices and swaps the values
+    def swap(self, key1, key2):
+        item = self[key1]
+        self[key1] = self[key2]
+        self[key2] = item
+
+
+    def sorted(self):
+        curr = self.head
+        for _ in range(self.len - 1):
+            if curr.value > curr.next.value:
+                return False
+            curr = curr.next
+        return True
+
+
+    def max_idx(self):
+        curr = self.head
+        max_idx = 0
+        for _ in range(self.len):
+            if curr.value > self[max_idx]:
+                max_idx = _
+            curr = curr.next
+        return max_idx
+
+
+    def min_idx(self):
+        curr = self.head
+        min_idx = 0
+        for _ in range(self.len):
+            if curr.value < self[min_idx]:
+                min_idx = _
+            curr = curr.next
+        return min_idx
+
+
+    # Sorts the list using bubble sort
+    def bubble_sort(self):
+        for i in range(self.len - 1):
+            curr = self.head
+            for j in range(self.len - i - 1):
+                if curr.value > curr.next.value:
+                    self.swap(j, j + 1)
+                curr = curr.next
+        
 
 def main():
-    mylist1 = LinkedList([1, 2, 3])
-    mylist2 = LinkedList([4, 5, 6])
-    mylist = LinkedList(mylist1)
-    mylist.concat(mylist2)
-    
-    # Test delitem
-    del mylist[0]
+    with open("bubble_sort.csv", "w", newline='') as csvfile:
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow(["List Length", "Sorted Status", "Time Taken (s)"])
 
-    # Test insert
-    mylist.insert(1, 'hello')
-    print(mylist)
+        for length in range(1, 501):
+            # Already sorted
+            alr_sorted = LinkedList(list(range(length)))
+            time_start = perf_counter()
+            alr_sorted.bubble_sort()
+            time_taken = perf_counter() - time_start
+            csvwriter.writerow([length, "Already Sorted", time_taken])
+
+            # Almost sorted
+            almost_sorted = LinkedList(list(range(length)))
+            # Shuffle a portion of the list to make it almost sorted
+            shuffle(almost_sorted[0:length // 10])
+            time_start = perf_counter()
+            almost_sorted.bubble_sort()
+            time_taken = perf_counter() - time_start
+            csvwriter.writerow([length, "Almost Sorted", time_taken])
+
+            # Completely random
+            random_list = LinkedList(random.sample(range(length), length))
+            time_start = perf_counter()
+            random_list.bubble_sort()
+            time_taken = perf_counter() - time_start
+            csvwriter.writerow([length, "Completely Random", time_taken])
 
 
 if __name__ == '__main__':
