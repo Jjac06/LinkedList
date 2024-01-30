@@ -180,6 +180,8 @@ def main():
             csvwriter.writerow(["List Length", "Already Sorted Time (s)", "Almost Sorted Time (s)", "Completely Random Time (s)"])
 
             for length in range(1, 501):
+                print(f'Running {length}...')
+                
                 # Already sorted
                 alr_sorted = LinkedList(list(range(length)))
                 time_start = perf_counter()
