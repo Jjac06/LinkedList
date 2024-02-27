@@ -172,10 +172,23 @@ class LinkedList:
                 if curr.value > curr.next.value:
                     self.swap(j, j + 1)
                 curr = curr.next
+
+
+    # Sorts the list using insertion sort
+    def insertion_sort(self):
+        curr = self.head
+        for i in range(1, self.len):
+            key = self[i]
+            j = i - 1
+            while j >= 0 and key < self[j]:
+                self[j + 1] = self[j]
+                j -= 1
+            self[j + 1] = key
         
 
 def main():
-    with open("bubble_sort.csv", "w", newline='') as csvfile:
+    # Timing bubble sort
+    """with open("bubble_sort.csv", "w", newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
             csvwriter.writerow(["List Length", "Already Sorted Time (s)", "Almost Sorted Time (s)", "Completely Random Time (s)"])
 
@@ -201,7 +214,37 @@ def main():
                 random_list.bubble_sort()
                 time_taken_random = perf_counter() - time_start
 
-                csvwriter.writerow([length, time_taken_alr_sorted, time_taken_almost_sorted, time_taken_random])
+                csvwriter.writerow([length, time_taken_alr_sorted, time_taken_almost_sorted, time_taken_random])"""
+
+    
+    # Timing insertion sort
+    with open("insertion_sort.csv", "w", newline='') as csvfile:
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow(["List Length", "Already Sorted Time (s)", "Almost Sorted Time (s)", "Completely Random Time (s)"])
+    
+        for length in range(1, 501):
+            print(f'Running {length}...')
+    
+            # Already sorted
+            alr_sorted = LinkedList(list(range(length)))
+            time_start = perf_counter()
+            alr_sorted.insertion_sort()
+            time_taken_alr_sorted = perf_counter() - time_start
+    
+            # Almost sorted
+            almost_sorted = LinkedList(list(range(length)))
+            shuffle(almost_sorted[0:length // 10])
+            time_start = perf_counter()
+            almost_sorted.insertion_sort()
+            time_taken_almost_sorted = perf_counter() - time_start
+    
+            # Completely random
+            random_list = LinkedList(random.sample(range(length), length))
+            time_start = perf_counter()
+            random_list.insertion_sort()
+            time_taken_random = perf_counter() - time_start
+    
+            csvwriter.writerow([length, time_taken_alr_sorted, time_taken_almost_sorted, time_taken_random])
 
 
 if __name__ == '__main__':
