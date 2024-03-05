@@ -184,7 +184,41 @@ class LinkedList:
                 self[j + 1] = self[j]
                 j -= 1
             self[j + 1] = key
-        
+
+    
+    # Merge function for merge sort
+    def merge(self, left, right):
+        a = 0
+        b = 0
+        c = 0
+        while a < len(left) and b < len(right):
+            if left[a] < right[b]:
+                self[c] = left[a]
+                a += 1
+            else:
+                self[c] = right[b]
+                b += 1
+            c += 1
+        while a < len(left):
+            self[c] = left[a]
+            a += 1
+            c += 1
+        while b < len(right):
+            self[c] = right[b]
+            b += 1
+            c += 1
+
+            
+    # Sorts the list using merge sort
+    def merge_sort(self):
+        if self.len > 1:
+            mid = self.len // 2
+            left = LinkedList(self[:mid])
+            right = LinkedList(self[mid:])
+            left.merge_sort()
+            right.merge_sort()
+            self.merge(left, right)
+            
 
 def main():
     # Timing bubble sort
@@ -218,7 +252,7 @@ def main():
 
     
     # Timing insertion sort
-    with open("insertion_sort.csv", "w", newline='') as csvfile:
+    """with open("insertion_sort.csv", "w", newline='') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(["List Length", "Already Sorted Time (s)", "Almost Sorted Time (s)", "Completely Random Time (s)"])
     
@@ -244,8 +278,10 @@ def main():
             random_list.insertion_sort()
             time_taken_random = perf_counter() - time_start
     
-            csvwriter.writerow([length, time_taken_alr_sorted, time_taken_almost_sorted, time_taken_random])
+            csvwriter.writerow([length, time_taken_alr_sorted, time_taken_almost_sorted, time_taken_random])"""
 
+    
+    # Timing merge sort
 
 if __name__ == '__main__':
     main()
